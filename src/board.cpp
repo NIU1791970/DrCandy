@@ -38,7 +38,7 @@ Candy* Board::getCell(int x, int y) const
 //SETTERS
 void Board::setCell(Candy* candy, int x, int y)
 {
-    // Implement your code here
+    Tauler[y][x] = candy;
 }
 
 //METODES
