@@ -2,13 +2,14 @@
 #include <memory>
 #include <iostream>
 
+//CONSTRUCTOR / DESTRUCTOR
 Board::Board(int width, int height)
 {
     for (int i = 0; i < width; i++) 
     {
-        for (int j = 0; j < height; j++0) 
+        for (int j = 0; j < height; j++) 
         {
-            Tauler[j][i] = 0;
+            Tauler[j][i] = nullptr;
         }
     }
 }
@@ -18,32 +19,29 @@ Board::~Board()
     delete Tauler;
 }
 
+//GETTERS
+int Board::getWidth() const 
+{
+    return DEFAULT_BOARD_WIDTH;
+}
+
+int Board::getHeight() const 
+{
+    return DEFAULT_BOARD_HEIGHT;
+}
 
 Candy* Board::getCell(int x, int y) const
 {
-    // Implement your code here
-    return nullptr;
+    return Tauler[x][y];
 }
 
+//SETTERS
 void Board::setCell(Candy* candy, int x, int y)
 {
     // Implement your code here
 }
 
-
-int Board::getWidth() const
-{
-    // Implement your code here
-    return -1;
-}
-
-
-int Board::getHeight() const
-{
-    // Implement your code here
-    return -1;
-}
-
+//METODES
 bool Board::shouldExplode(int x, int y) const
 {
     // Implement your code here
