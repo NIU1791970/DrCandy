@@ -4,12 +4,18 @@
 
 Board::Board(int width, int height)
 {
-    // Implement your code here
+    for (int i = 0; i < width; i++) 
+    {
+        for (int j = 0; j < height; j++0) 
+        {
+            Tauler[j][i] = 0;
+        }
+    }
 }
 
 Board::~Board()
 {
-    // Implement your code here
+    delete Tauler;
 }
 
 
