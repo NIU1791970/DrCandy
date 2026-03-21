@@ -44,7 +44,32 @@ void Board::setCell(Candy* candy, int x, int y)
 //METODES
 bool Board::shouldExplode(int x, int y) const
 {
-    // Implement your code here
+    //Codi que segurament es pot millorar a futur:
+
+    if (Tauler[x - 2] == Tauler[x - 1] == Tauler[x])
+    {
+        return true;
+    }
+    else if (Tauler[x - 1] == Tauler[x] == Tauler[x + 1])
+    {
+        return true;
+    }
+    else if (Tauler[x] == Tauler[x + 1] == Tauler[x + 2])
+    {
+        return true;
+    }
+    else if (Tauler[y - 2] == Tauler[y- 1] == Tauler[y])
+    {
+        return true;
+    }
+    else if (Tauler[y - 1] == Tauler[y] == Tauler[y + 1])
+    {
+        return true;
+    }
+    else if (Tauler[y] == Tauler[y + 1] == Tauler[y + 2])
+    {
+        return true;
+    }
     return false;
 }
 
