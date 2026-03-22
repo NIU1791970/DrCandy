@@ -32,7 +32,12 @@ int Board::getHeight() const
 
 Candy* Board::getCell(int x, int y) const
 {
-    return Tauler[x][y];
+    //return Tauler[x][y];
+    Candy* result = nullptr;
+    if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
+        result = m_board[x][y];
+    }
+    return result;
 }
 
 //SETTERS
@@ -44,32 +49,112 @@ void Board::setCell(Candy* candy, int x, int y)
 //METODES
 bool Board::shouldExplode(int x, int y) const
 {
-    //Codi que segurament es pot millorar a futur:
+    //Si el comptador arriba a 3 en qualsevol direcció, s'ha de retornar true
+    int comptador = 0;
+    //Horitzontal esquerra:
+    int i = 0;
+    while (x - i >= 0 && Tauler[x - i][y] == Tauler[x][y])
+    {
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
+    }
+    comptador = 0;
 
-    if (Tauler[x - 2] == Tauler[x - 1] == Tauler[x])
+    //Horizontal dreta:
+    int i = 0;
+    while (x + i <= DEFAULT_BOARD_WIDTH && Tauler[x + i][y] == Tauler[x][y])
     {
-        return true;
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
     }
-    else if (Tauler[x - 1] == Tauler[x] == Tauler[x + 1])
+    comptador = 0;
+    
+    //Verdical adalt:
+    int i = 0;
+    while (y - i >= 0 && Tauler[x][y-i] == Tauler[x][y])
     {
-        return true;
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
     }
-    else if (Tauler[x] == Tauler[x + 1] == Tauler[x + 2])
+    comptador = 0;
+
+    //Vertical abaix:
+    int i = 0;
+    while (y + i <= DEFAULT_BOARD_HEIGHT && Tauler[x][y + i] == Tauler[x][y])
     {
-        return true;
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
     }
-    else if (Tauler[y - 2] == Tauler[y- 1] == Tauler[y])
+    comptador = 0;
+        
+    //Diagonal esquerra-adalt:
+    int i = 0;
+    while (y - i >= 0 && x-i >= 0 && Tauler[x - i][y - i] == Tauler[x][y])
     {
-        return true;
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
     }
-    else if (Tauler[y - 1] == Tauler[y] == Tauler[y + 1])
+    comptador = 0;
+
+    //Diagonal esquerra-abaix:
+    int i = 0;
+    while (y + i <= DEFAULT_BOARD_HEIGHT && x - i >= 0 && Tauler[x - i][y + i] == Tauler[x][y])
     {
-        return true;
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
     }
-    else if (Tauler[y] == Tauler[y + 1] == Tauler[y + 2])
+    comptador = 0;
+
+    //Diagonal dreta-adalt:
+    int i = 0;
+    while (y - i >= 0 && x + i <= DEFAULT_BOARD_WIDTH && Tauler[x + i][y - i] == Tauler[x][y])
     {
-        return true;
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
     }
+    comptador = 0;
+
+    //Diagonal dreta-abaix:
+    int i = 0;
+    while (y + i <= DEFAULT_BOARD_HEIGHT && x + i <= DEFAULT_BOARD_WIDTH && Tauler[x + i][y + i] == Tauler[x][y])
+    {
+        comptador++;
+        if (comptador == 3)
+        {
+            return true;
+        }
+        i++;
+    }
+    comptador = 0;
+
     return false;
 }
 
