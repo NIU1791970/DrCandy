@@ -1,4 +1,4 @@
-#include "board.h"
+﻿#include "board.h"
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -23,22 +23,12 @@ Board::~Board()
     {
         for (int j = 0; j < m_height; j++)
         {
-            delete Tauler[i][j];
             Tauler[i][j] = nullptr;
         }
     }
 }
 
 //GETTERS
-int Board::getWidth() const 
-{
-    return m_width;
-}
-
-int Board::getHeight() const 
-{
-    return m_height;
-}
 
 Candy* Board::getCell(int x, int y) const
 {
@@ -50,143 +40,120 @@ Candy* Board::getCell(int x, int y) const
     return result;
 }
 
+int Board::getWidth() const 
+{
+    return m_width;
+}
+
+int Board::getHeight() const 
+{
+    return m_height;
+}
+
+
 //SETTERS
 void Board::setCell(Candy* candy, int x, int y)
 {
-    Tauler[x][y] = candy;
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height)
+    {
+        Tauler[x][y] = candy;
+        
+    }
 }
 
 //METODES
 bool Board::shouldExplode(int x, int y) const
 {
-
     if (x < 0 || x >= m_width || y < 0 || y >= m_height || Tauler[x][y] == nullptr)
     {
         return false;
     }
 
-    //Si el comptador arriba a 3 en qualsevol direccio, s'ha de retornar true
-    int comptador = 0;
-    //Horitzontal esquerra:
-    int i = 0;
-    while (x - i >= 0 && Tauler[x - i][y] == Tauler[x][y])
-    {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
-    }
-    comptador = 0;
+    CandyType type = Tauler[x][y]->getType();
+    int totalCount = 0;
 
-    //Horizontal dreta:
-    i = 0;
-    while (x + i <= m_width && Tauler[x + i][y] == Tauler[x][y])
+    // Check horizontal line (left + right)
+    totalCount = 1; // Count the current candy
+    // Count to the left
+    for (int i = 1; x - i >= 0 && Tauler[x - i][y] != nullptr && Tauler[x - i][y]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
-    
-    //Verdical adalt:
-    i = 0;
-    while (y - i >= 0 && Tauler[x][y-i] == Tauler[x][y])
+    // Count to the right
+    for (int i = 1; x + i < m_width && Tauler[x + i][y] != nullptr && Tauler[x + i][y]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
+    if (totalCount >= SHORTEST_EXPLOSION_LINE)
+    {
+        return true;
+    }
 
-    //Vertical abaix:
-    i = 0;
-    while (y + i <= m_height && Tauler[x][y + i] == Tauler[x][y])
+    // Check vertical line (up + down)
+    totalCount = 1;
+    // Count upward
+    for (int i = 1; y - i >= 0 && Tauler[x][y - i] != nullptr && Tauler[x][y - i]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
-        
-    //Diagonal esquerra-adalt:
-    i = 0;
-    while (y - i >= 0 && x-i >= 0 && Tauler[x - i][y - i] == Tauler[x][y])
+    // Count downward
+    for (int i = 1; y + i < m_height && Tauler[x][y + i] != nullptr && Tauler[x][y + i]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
+    if (totalCount >= SHORTEST_EXPLOSION_LINE)
+    {
+        return true;
+    }
 
-    //Diagonal esquerra-abaix:
-    i = 0;
-    while (y + i <= m_height && x - i >= 0 && Tauler[x - i][y + i] == Tauler[x][y])
+    // Check diagonal (top-left to bottom-right) (\) 
+    totalCount = 1;
+    // Count top-left direction
+    for (int i = 1; x - i >= 0 && y - i >= 0 && Tauler[x - i][y - i] != nullptr && Tauler[x - i][y - i]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
+    // Count bottom-right direction
+    for (int i = 1; x + i < m_width && y + i < m_height && Tauler[x + i][y + i] != nullptr && Tauler[x + i][y + i]->getType() == type; i++)
+    {
+        totalCount++;
+    }
+    if (totalCount >= SHORTEST_EXPLOSION_LINE)
+    {
+        return true;
+    }
 
-    //Diagonal dreta-adalt:
-    i = 0;
-    while (y - i >= 0 && x + i <= m_width && Tauler[x + i][y - i] == Tauler[x][y])
+    // Check diagonal (top-right to bottom-left) (/)
+    totalCount = 1;
+    // Count top-right direction
+    for (int i = 1; x + i < m_width && y - i >= 0 && Tauler[x + i][y - i] != nullptr && Tauler[x + i][y - i]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
-
-    //Diagonal dreta-abaix:
-    i = 0;
-    while (y + i <= m_height && x + i <= m_width && Tauler[x + i][y + i] == Tauler[x][y])
+    // Count bottom-left direction
+    for (int i = 1; x - i >= 0 && y + i < m_height && Tauler[x - i][y + i] != nullptr && Tauler[x - i][y + i]->getType() == type; i++)
     {
-        comptador++;
-        if (comptador == 3)
-        {
-            return true;
-        }
-        i++;
+        totalCount++;
     }
-    comptador = 0;
+    if (totalCount >= SHORTEST_EXPLOSION_LINE)
+    {
+        return true;
+    }
 
     return false;
 }
 
 std::vector<Candy*> Board::explodeAndDrop()
 {
-    // Implement your code here
-
-    bool canvis = false;
-    bool hanCaigut = false;
     std::vector<Candy*> CandiesAExplotar;
+    bool canvis = false;
 
     do
     {
         canvis = false;
-        bool explotats[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT] = {false};
-        //Marca els caramels que cal explotar
+        bool explotats[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT] = { false };
+
+       
         for (int i = 0; i < m_width; i++)
         {
             for (int j = 0; j < m_height; j++)
@@ -199,8 +166,8 @@ std::vector<Candy*> Board::explodeAndDrop()
             }
         }
 
-        //Elimina els caramels que calgui
-        if(canvis)
+        
+        if (canvis)
         {
             for (int i = 0; i < m_width; i++)
             {
@@ -213,22 +180,20 @@ std::vector<Candy*> Board::explodeAndDrop()
                     }
                 }
             }
-        }
-        //Baixa tots els caramels necessaris
-        if (canvis)
-        {
+
+            
             for (int i = 0; i < m_width; i++)
             {
                 for (int j = m_height - 1; j >= 0; j--)
                 {
                     if (Tauler[i][j] == nullptr)
                     {
-                        //Comprova la resta de la columna per si han de caure caramels
+                        
                         for (int k = j - 1; k >= 0; k--)
                         {
-                            if (Tauler[i][j] != nullptr)
+                            if (Tauler[i][k] != nullptr)
                             {
-                                setCell(getCell(i, k), i, j);
+                                setCell(Tauler[i][k], i, j);
                                 setCell(nullptr, i, k);
                                 break;
                             }
@@ -239,7 +204,9 @@ std::vector<Candy*> Board::explodeAndDrop()
         }
 
     } while (canvis);
+
     return CandiesAExplotar;
+    return {};
 }
 
 bool Board::dump(const std::string& output_path) const
@@ -292,9 +259,9 @@ bool Board::load(const std::string& input_path)
         return false;
     }
 
-    for (int i = 0; i < m_width; i++)
+    for (int i = 0; i < DEFAULT_BOARD_WIDTH; i++) 
     {
-        for (int j = 0; j < m_height; j++)
+        for (int j = 0; j < DEFAULT_BOARD_HEIGHT; j++) 
         {
             delete Tauler[i][j];
             Tauler[i][j] = nullptr;
