@@ -88,7 +88,9 @@ public:
     int getHeight() const;
 
 private:
-    Candy* Tauler[DEFAULT_BOARD_HEIGHT][DEFAULT_BOARD_WIDTH];
+    Candy* Tauler[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT];
+    int m_width;
+    int m_height;
     /// Students can add as many protected methods and attributes as needed.
 };
 
