@@ -65,7 +65,7 @@ bool Board::shouldExplode(int x, int y) const
         return false;
     }
 
-    //Si el comptador arriba a 3 en qualsevol direcció, s'ha de retornar true
+    //Si el comptador arriba a 3 en qualsevol direccio, s'ha de retornar true
     int comptador = 0;
     //Horitzontal esquerra:
     int i = 0;
