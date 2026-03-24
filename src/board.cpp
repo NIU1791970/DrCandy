@@ -4,35 +4,27 @@
 #include <fstream>
 
 //CONSTRUCTOR: Iniciem el tauler (de classe Board) amb punters nullptr (no apunten a res), i amb les dimensions pasades com a valor de width i height.
-Board::Board(int width, int height)
+Board::Board(int width, int height) : m_width(width), m_height(height)
 {
-    m_width = width;
-    m_height = height;
-    for (int i = 0; i < width; i++) 
-    {
-        for (int j = 0; j < height; j++) 
-        {
-            Tauler[i][j] = nullptr;
-        }
-    }
+    Tauler.resize(m_height, std::vector<Candy*>(m_width, nullptr));
 }
 
-//DESTRUCTOR: Alliberem els punters de la referència, tornant-los a apuntar a nullptr (a res), i així alliberem la memòria i resetejem el tauler (Board).
+//DESTRUCTOR: Alliberem els punters de la referència, tornant-los a apuntar a nullptr (a res), i aixi alliberem la memoria i resetejem el tauler (Board).
 Board::~Board()
 {
-    for (int i = 0; i < m_width; i++)
+    /*for (int i = 0; i < m_width; i++)
     {
         for (int j = 0; j < m_height; j++)
         {
             Tauler[i][j] = nullptr;
         }
-    }
+    }*/
 }
 
-//getCell: Amb el getCell podem saber quin candy és el punter a les coordenades x y que hem passat a la funció.
-//Iniciem el resultat de la funció a nullptr, i comprovem si les coordenades pertanyen al tauler. De ser així, la
-//funció retorna el punter amb el tipus de candy que té la cel·la (si està buida, seguirà en nullptr).
-//La funció és una constant ja que no ha de modificar dades.
+//getCell: Amb el getCell podem saber quin candy és el punter a les coordenades x y que hem passat a la funcio.
+//Iniciem el resultat de la funcio a nullptr, i comprovem si les coordenades pertanyen al tauler. De ser aixi, la
+//funcio retorna el punter amb el tipus de candy que té la cel·la (si esta buida, seguira en nullptr).
+//La funcio és una constant ja que no ha de modificar dades.
 Candy* Board::getCell(int x, int y) const
 {
     Candy* result = nullptr;
@@ -42,22 +34,22 @@ Candy* Board::getCell(int x, int y) const
     return result;
 }
 
-//getWidth: Aquesta funció ens permet recuperar quina és l'amplitud del tauler.
-//La funció és una constant ja que no ha de modificar dades.
+//getWidth: Aquesta funcio ens permet recuperar quina és l'amplitud del tauler.
+//La funcio és una constant ja que no ha de modificar dades.
 int Board::getWidth() const 
 {
     return m_width;
 }
 
-//getHeight: Aquesta funció ens permet recuperar quina és l'altura del tauler.
-//La funció és una constant ja que no ha de modificar dades.
+//getHeight: Aquesta funcio ens permet recuperar quina és l'altura del tauler.
+//La funcio és una constant ja que no ha de modificar dades.
 int Board::getHeight() const 
 {
     return m_height;
 }
 
 
-//setCell: la funció rep un punter del tipus de candy i unes coordenades, i assigna el punter del tauler en les coordenades 
+//setCell: la funcio rep un punter del tipus de candy i unes coordenades, i assigna el punter del tauler en les coordenades 
 //x y proporcionades al mateix tipus de candy que se li ha passat. 
 void Board::setCell(Candy* candy, int x, int y)
 {
@@ -69,7 +61,7 @@ void Board::setCell(Candy* candy, int x, int y)
 }
 
 //sholudExplode: comprova si, des de les coordenades x y proporcionades, seguint qualsevol de les vuit 
-//direccions i comptant-se a si mateixa, hi ha tres o més cel·les del mateix tipus de punter candy. De ser així retorna true. Si no hi ha tres 
+//direccions i comptant-se a si mateixa, hi ha tres o més cel·les del mateix tipus de punter candy. De ser aixi retorna true. Si no hi ha tres 
 // tipus de candy iguals retorna false.
 bool Board::shouldExplode(int x, int y) const
 {
@@ -116,7 +108,7 @@ bool Board::shouldExplode(int x, int y) const
         return true;
     }
 
-    //Comprova diagonals (adalt-esquerrra i abaix-dreta) (\). 
+    //Comprova diagonals (adalt-esquerrra i abaix-dreta) (). 
     totalCount = 1;
     //Compta adalt-esquerrra
     for (int i = 1; x - i >= 0 && y - i >= 0 && Tauler[x - i][y - i] != nullptr && Tauler[x - i][y - i]->getType() == type; i++)
@@ -133,7 +125,7 @@ bool Board::shouldExplode(int x, int y) const
         return true;
     }
 
-    //Comprova diagonals (adalt-dreta i esquerra-abaix) (/).
+    //Comprova diagonals (adalt-dreta i esquerra-abaix) ().
     totalCount = 1;
     //Compta adalt-dreta
     for (int i = 1; x + i < m_width && y - i >= 0 && Tauler[x + i][y - i] != nullptr && Tauler[x + i][y - i]->getType() == type; i++)
@@ -149,16 +141,16 @@ bool Board::shouldExplode(int x, int y) const
     {
         return true;
     }
-    //Si cap de les direccions té més de 3 candy igual seguits al mateix de les coordenades, no hi ha d'haver cap explosió.
+    //Si cap de les direccions té més de 3 candy igual seguits al mateix de les coordenades, no hi ha d'haver cap explosio.
     return false;
 }
 
-//explodeAndDrop: bucle de joc on es fa al moviment de baixar les candy una posició quan hi ha hagut una explosió.
+//explodeAndDrop: bucle de joc on es fa al moviment de baixar les candy una posicio quan hi ha hagut una explosio.
 std::vector<Candy*> Board::explodeAndDrop()
 {
     //CandiesAExplotar és el vector on marcarem tots els candies explotats, aquest és el que retornem
     std::vector<Candy*> CandiesAExplotar;
-    //Canvis s'encarrega de determinar a cada bucle si hi ha hagut algun moviment/explosio, quan detecti que no hi ha canvis, deixa de comprovar condicions i surt del bucle
+    //Canvis s'encarrega de determinar a cada bucle si hi ha hagut algun moviment /explosio, quan detecti que no hi ha canvis, deixa de comprovar condicions i surt del bucle
     bool canvis = false;
 
     do
@@ -167,6 +159,7 @@ std::vector<Candy*> Board::explodeAndDrop()
         canvis = false;
         //La matriu de bools explotats[][] s'encarrega de guardar totes les posicions que explotaran.
         bool explotats[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT] = { false };
+        
 
        //Marquem quines posicions han d'explotar i les posem a la matriu explotats[][] per a poder-les marcar i DESPRÉS explotar-les. 
         for (int i = 0; i < m_width; i++)
@@ -222,10 +215,9 @@ std::vector<Candy*> Board::explodeAndDrop()
     } while (canvis);
 
     return CandiesAExplotar;
-    return {};
 }
 
-//dump: Guardem tota la informació del tauler en un fitxer extern que ens permet guardar de forma permanent la partida en l'estat actual.
+//dump: Guardem tota la informacio del tauler en un fitxer extern que ens permet guardar de forma permanent la partida en l'estat actual.
 bool Board::dump(const std::string& output_path) const
 {
     //Declarem el fitxer que utilitzarem per gurdar les dades.
@@ -238,8 +230,8 @@ bool Board::dump(const std::string& output_path) const
     //Primer guardem les mesures del tauler per poder-lo recrear adequadament.
     file << m_width << " " << m_height << std::endl;
 
-    //Guardem tota la informació del tauler: si el punter està buit (nullptr), el guardem amb el valor -1, qualsevol altre tipus de canvi se li atribuieix un
-    //valor i es guarda la posició (x,y) amb aquest valor per tal de poder-la recuperar.
+    //Guardem tota la informacio del tauler: si el punter esta buit (nullptr), el guardem amb el valor -1, qualsevol altre tipus de canvi se li atribuieix un
+    //valor i es guarda la posicio (x,y) amb aquest valor per tal de poder-la recuperar.
     for (int j = 0; j < m_height; j++)
     {
         for (int i = 0; i < m_width; i++)
@@ -260,7 +252,7 @@ bool Board::dump(const std::string& output_path) const
     
 }
 
-//load: carregar a la memòria una partida guardada en un fitxer extern.
+//load: carregar a la memoria una partida guardada en un fitxer extern.
 bool Board::load(const std::string& input_path)
 {
     //Declarem el fitxer que utilitzarem per llegir les dades.
@@ -297,7 +289,7 @@ bool Board::load(const std::string& input_path)
         for (int i = 0; i < m_width; i++)
         {
             int candyType;
-            //Llegim el tipus de candy de la iteració actual.
+            //Llegim el tipus de candy de la iteracio actual.
             file >> candyType;
 
             if (candyType == -1)
