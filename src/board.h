@@ -88,7 +88,7 @@ public:
     int getHeight() const;
 
 private:
-    Candy* Tauler[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT];
+    std::vector<std::vector<Candy*>> Tauler;
     int m_width;
     int m_height;
     /// Students can add as many protected methods and attributes as needed.
