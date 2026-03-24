@@ -12,7 +12,7 @@ Board::Board(int width, int height)
     {
         for (int j = 0; j < height; j++) 
         {
-            Tauler[i][j] = nullptr;
+            Tauler[j][i] = nullptr;
         }
     }
 }
@@ -24,7 +24,7 @@ Board::~Board()
     {
         for (int j = 0; j < m_height; j++)
         {
-            Tauler[i][j] = nullptr;
+            Tauler[j][i] = nullptr;
         }
     }
 }
@@ -74,7 +74,7 @@ void Board::setCell(Candy* candy, int x, int y)
 bool Board::shouldExplode(int x, int y) const
 {
     //Comprova que les coordenades estiguin dintre el tauler.
-    if (x < 0 || x >= m_width || y < 0 || y >= m_height || Tauler[x][y] == nullptr)
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height || Tauler[y][x] == nullptr)
     {
         return false;
     }
@@ -176,7 +176,7 @@ std::vector<Candy*> Board::explodeAndDrop()
                 if (shouldExplode(i, j))
                 {
                     canvis = true;
-                    explotats[i][j] = true;
+                    explotats[j][i] = true;
                 }
             }
         }
@@ -188,10 +188,10 @@ std::vector<Candy*> Board::explodeAndDrop()
             {
                 for (int j = 0; j < m_height; j++)
                 {
-                    if (explotats[i][j] && Tauler[i][j] != nullptr)
+                    if (explotats[j][i] && Tauler[j][i] != nullptr)
                     {
-                        CandiesAExplotar.push_back(Tauler[i][j]);
-                        Tauler[i][j] = nullptr;
+                        CandiesAExplotar.push_back(Tauler[j][i]);
+                        Tauler[j][i] = nullptr;
                     }
                 }
             }
@@ -202,7 +202,7 @@ std::vector<Candy*> Board::explodeAndDrop()
             {
                 for (int j = m_height - 1; j >= 0; j--)
                 {
-                    if (Tauler[i][j] == nullptr)
+                    if (Tauler[j][i] == nullptr)
                     {
                         
                         for (int k = j - 1; k >= 0; k--)
@@ -244,13 +244,13 @@ bool Board::dump(const std::string& output_path) const
     {
         for (int i = 0; i < m_width; i++)
         {
-            if (Tauler[i][j] == nullptr)
+            if (Tauler[j][i] == nullptr)
             {
                 file << "-1";
             }
             else
             {
-                file << static_cast<int>(Tauler[i][j]->getType()) << " ";
+                file << static_cast<int>(Tauler[j][i]->getType()) << " ";
             }
         }
         file << std::endl;
@@ -284,8 +284,8 @@ bool Board::load(const std::string& input_path)
     {
         for (int j = 0; j < DEFAULT_BOARD_HEIGHT; j++) 
         {
-            delete Tauler[i][j];
-            Tauler[i][j] = nullptr;
+            delete Tauler[j][i];
+            Tauler[j][i] = nullptr;
         }
     }
 
@@ -303,12 +303,12 @@ bool Board::load(const std::string& input_path)
             if (candyType == -1)
             {
                 //Si el CandyType es -1, se li assigna el nullptr, una casella buida.
-                Tauler[i][j] = nullptr;
+                Tauler[j][i] = nullptr;
             }
             else if (candyType >= 0 && candyType < static_cast<int>(CandyType::COUNT))
             {
                 //En qualsevol altre cas, se li reassigna el tipus de candy que li pertoca.
-                Tauler[i][j] = new Candy(static_cast<CandyType>(candyType));
+                Tauler[j][i] = new Candy(static_cast<CandyType>(candyType));
             }
             else
             {
