@@ -85,12 +85,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova linia horitzontal (esquerra i dreta).
     totalCount = 1; // Comptador de candy actual.
     //Compta cap a la esquerra.
-    for (int i = 1; x - i >= 0 && Tauler[x - i][y] != nullptr && Tauler[x - i][y]->getType() == type; i++)
+    for (int i = 1; x - i >= 0 && Tauler[y - i][x] != nullptr && Tauler[y - i][x]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta cap a la dreta.
-    for (int i = 1; x + i < m_width && Tauler[x + i][y] != nullptr && Tauler[x + i][y]->getType() == type; i++)
+    for (int i = 1; x + i < m_width && Tauler[y + i][x] != nullptr && Tauler[y + i][x]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -102,12 +102,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova linia vertical (adalt i abaix).
     totalCount = 1;
     //Compta adalt.
-    for (int i = 1; y - i >= 0 && Tauler[x][y - i] != nullptr && Tauler[x][y - i]->getType() == type; i++)
+    for (int i = 1; y - i >= 0 && Tauler[y][x - i] != nullptr && Tauler[y][x - i]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta abaix.
-    for (int i = 1; y + i < m_height && Tauler[x][y + i] != nullptr && Tauler[x][y + i]->getType() == type; i++)
+    for (int i = 1; y + i < m_height && Tauler[y][x + i] != nullptr && Tauler[y][x + i]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -119,12 +119,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova diagonals (adalt-esquerrra i abaix-dreta) (\). 
     totalCount = 1;
     //Compta adalt-esquerrra
-    for (int i = 1; x - i >= 0 && y - i >= 0 && Tauler[x - i][y - i] != nullptr && Tauler[x - i][y - i]->getType() == type; i++)
+    for (int i = 1; x - i >= 0 && y - i >= 0 && Tauler[y - i][x - i] != nullptr && Tauler[y - i][x - i]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta abaix-dreta.
-    for (int i = 1; x + i < m_width && y + i < m_height && Tauler[x + i][y + i] != nullptr && Tauler[x + i][y + i]->getType() == type; i++)
+    for (int i = 1; x + i < m_width && y + i < m_height && Tauler[y + i][x + i] != nullptr && Tauler[y + i][x + i]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -136,12 +136,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova diagonals (adalt-dreta i esquerra-abaix) (/).
     totalCount = 1;
     //Compta adalt-dreta
-    for (int i = 1; x + i < m_width && y - i >= 0 && Tauler[x + i][y - i] != nullptr && Tauler[x + i][y - i]->getType() == type; i++)
+    for (int i = 1; x + i < m_width && y - i >= 0 && Tauler[y + i][x - i] != nullptr && Tauler[y + i][x - i]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta esquerra-abaix.
-    for (int i = 1; x - i >= 0 && y + i < m_height && Tauler[x - i][y + i] != nullptr && Tauler[x - i][y + i]->getType() == type; i++)
+    for (int i = 1; x - i >= 0 && y + i < m_height && Tauler[y - i][x + i] != nullptr && Tauler[y - i][x + i]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -166,7 +166,7 @@ std::vector<Candy*> Board::explodeAndDrop()
         //Establim el bool canvis a false, ja que ha de comprovar a l'inici de cada bucle si hi ha hagut canvis.
         canvis = false;
         //La matriu de bools explotats[][] s'encarrega de guardar totes les posicions que explotaran.
-        bool explotats[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT] = { false };
+        bool explotats[DEFAULT_BOARD_HEIGHT][DEFAULT_BOARD_WIDTH] = { false };
 
        //Marquem quines posicions han d'explotar i les posem a la matriu explotats[][] per a poder-les marcar i DESPReS explotar-les. 
         for (int i = 0; i < m_width; i++)
@@ -207,9 +207,9 @@ std::vector<Candy*> Board::explodeAndDrop()
                         
                         for (int k = j - 1; k >= 0; k--)
                         {
-                            if (Tauler[i][k] != nullptr)
+                            if (Tauler[k][i] != nullptr)
                             {
-                                setCell(Tauler[i][k], i, j);
+                                setCell(Tauler[k][i], i, j);
                                 setCell(nullptr, i, k);
                                 break;
                             }
