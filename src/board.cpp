@@ -37,7 +37,7 @@ Candy* Board::getCell(int x, int y) const
 {
     Candy* result = nullptr;
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
-        result = Tauler[x][y];
+        result = Tauler[y][x];
     }
     return result;
 }
@@ -63,7 +63,7 @@ void Board::setCell(Candy* candy, int x, int y)
 {
     if (x >= 0 && x < m_width && y >= 0 && y < m_height)
     {
-        Tauler[x][y] = candy;
+        Tauler[y][x] = candy;
         
     }
 }
@@ -79,7 +79,7 @@ bool Board::shouldExplode(int x, int y) const
         return false;
     }
 
-    CandyType type = Tauler[x][y]->getType();
+    CandyType type = Tauler[y][x]->getType();
     int totalCount = 0;
 
     //Comprova linia horitzontal (esquerra i dreta).
