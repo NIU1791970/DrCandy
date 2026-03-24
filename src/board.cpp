@@ -156,16 +156,19 @@ bool Board::shouldExplode(int x, int y) const
 //explodeAndDrop: bucle de joc on es fa al moviment de baixar les candy una posició quan hi ha hagut una explosió.
 std::vector<Candy*> Board::explodeAndDrop()
 {
+    //CandiesAExplotar és el vector on marcarem tots els candies explotats, aquest és el que retornem
     std::vector<Candy*> CandiesAExplotar;
+    //Canvis s'encarrega de determinar a cada bucle si hi ha hagut algun moviment/explosio, quan detecti que no hi ha canvis, deixa de comprovar condicions i surt del bucle
     bool canvis = false;
 
     do
     {
-        //Iniciem la matriu de canvis en la iteració a fals, indicant que en la iteració actual no hi ha hagut cap canvi.
+        //Establim el bool canvis a false, ja que ha de comprovar a l'inici de cada bucle si hi ha hagut canvis.
         canvis = false;
+        //La matriu de bools explotats[][] s'encarrega de guardar totes les posicions que explotaran.
         bool explotats[DEFAULT_BOARD_WIDTH][DEFAULT_BOARD_HEIGHT] = { false };
 
-       //Comprovem quines posicions haurien d'explotar i les marquem com a true, de la mateixa manera que marquem que hi ha hagut canvis en aquesta iteració.
+       //Marquem quines posicions han d'explotar i les posem a la matriu explotats[][] per a poder-les marcar i DESPRÉS explotar-les. 
         for (int i = 0; i < m_width; i++)
         {
             for (int j = 0; j < m_height; j++)
@@ -178,7 +181,7 @@ std::vector<Candy*> Board::explodeAndDrop()
             }
         }
 
-        
+        //Eliminem tots els caramels que hem marcat abans per a explotar
         if (canvis)
         {
             for (int i = 0; i < m_width; i++)
@@ -193,7 +196,8 @@ std::vector<Candy*> Board::explodeAndDrop()
                 }
             }
 
-            //Canviem el punter de la cel·la superior a la inferior, i així abaixem les posicions necessàries les columnes que han estat modificades.
+            //Part encarregada de la gravetat dels caramels
+            //Comprova a cada posicio si hi ha un espai blanc, si es aixi, busca a sobre d'aquesta si hi ha caramels, si n'hi ha, els baixa.
             for (int i = 0; i < m_width; i++)
             {
                 for (int j = m_height - 1; j >= 0; j--)
