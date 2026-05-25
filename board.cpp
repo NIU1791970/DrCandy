@@ -3,23 +3,43 @@
 #include <iostream>
 #include <fstream>
 
-//CONSTRUCTOR: Iniciem el tauler (de la classe Board) amb punters nullptr (no apunten a res), i amb les dimensions pasades com a valor de width i height.
-//El tauler consisteix en una matriu formada per vectors. Resize permet no nomes modificar les dimensions dels vectors, sino que tambe ens permet assignar totes les posicions a un mateix valor.
-Board::Board(int width, int height) : m_width(width), m_height(height)
+
+//Per a accedir comodament a l'array de celles (el tauler), aquesta funcio converteix un conjunt de coordenades en un sol nombre enter.
+//Si assumim les dimensions predeterminades, el punt (3, 5) passa a ser 35 o (7,4) passa a ser (4,7)
+//Per tant, on abans accediem a Tauler[x][y], ara hi accedim amb m_celles[idx(x, y)]
+int Board::idx(int x, int y) const
 {
-    Tauler.resize(m_height, std::vector<Candy*>(m_width, nullptr));
+    return y * m_width + x;
+}
+//CONSTRUCTOR: Iniciem el tauler (de la classe Board) amb punters nullptr (no apunten a res), i amb les dimensions pasades com a valor de width i height.
+Board::Board(int width, int height) : m_width(width), m_height(height), m_celles(nullptr)
+{
+    creaTauler();
+}
+
+Board::Board(const Board& other)
+{
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_celles = other.m_celles;
+    creaTauler();
+    for (int i = 0; i < m_width * m_height; i++)
+    {
+        if (other.m_celles == nullptr)
+        {
+            m_celles[i] == nullptr;
+        }
+        else
+        {
+            m_celles[i] == new Candy(other.m_celles[i]->getType());
+        }
+    }
 }
 
 //DESTRUCTOR: Alliberem els punters de la referència, tornant-los a apuntar a nullptr (a res), i aixi alliberem la memoria i resetejem el tauler (Board).
 Board::~Board()
 {
-    /*for (int i = 0; i < m_width; i++)
-    {
-        for (int j = 0; j < m_height; j++)
-        {
-            Tauler[i][j] = nullptr;
-        }
-    }*/
+    lliberaMemoria();
 }
 
 //getCell: Amb el getCell podem saber quin candy és el punter a les coordenades x y que hem passat a la funcio.
@@ -30,7 +50,7 @@ Candy* Board::getCell(int x, int y) const
 {
     Candy* result = nullptr;
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
-        result = Tauler[x][y];
+        result = m_celles[idx(x, y)];
     }
     return result;
 }
@@ -56,34 +76,63 @@ void Board::setCell(Candy* candy, int x, int y)
 {
     if (x >= 0 && x < m_width && y >= 0 && y < m_height)
     {
-        Tauler[x][y] = candy;
+        delete m_celles[idx(x, y)];
+        m_celles[idx(x, y)] = candy;
 
     }
 }
 
+bool Board::estaDintre(int x, int y) const
+{
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height)
+    {
+        return true;
+    }
+    return false;
+}
+
+void Board::creaTauler()
+{
+    int nCelles = m_width * m_height;
+    m_celles = new Candy*[nCelles];
+    for (int i = 0; i < nCelles; i++)
+    {
+        m_celles[i] = nullptr;
+    }
+}
+void Board::lliberaMemoria()
+{
+    int nCelles = m_width * m_height;
+    for (int i = 0; i < nCelles; i++)
+    {
+        delete m_celles[i];
+    }
+    delete[] m_celles;
+    m_celles = nullptr;
+}
 //sholudExplode: comprova si, des de les coordenades x y proporcionades, seguint qualsevol de les vuit 
 //direccions i comptant-se a si mateixa, hi ha tres o més cel·les del mateix tipus de punter candy. De ser aixi retorna true. Si no hi ha tres 
 // tipus de candy iguals retorna false.
 bool Board::shouldExplode(int x, int y) const
 {
     //Comprova que les coordenades estiguin dintre el tauler.
-    if (x < 0 || x >= m_width || y < 0 || y >= m_height || Tauler[x][y] == nullptr)
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height || m_celles[idx(x, y)] == nullptr)
     {
         return false;
     }
 
-    CandyType type = Tauler[x][y]->getType();
+    CandyType type = m_celles[idx(x, y)]->getType();
     int totalCount = 0;
 
     //Comprova linia horitzontal (esquerra i dreta).
     totalCount = 1; // Comptador de candy actual.
     //Compta cap a la esquerra.
-    for (int i = 1; x - i >= 0 && Tauler[x - i][y] != nullptr && Tauler[x - i][y]->getType() == type; i++)
+    for (int i = 1; x - i >= 0 && m_celles[idx(x-i, y)] != nullptr && m_celles[idx(x - i, y)]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta cap a la dreta.
-    for (int i = 1; x + i < m_width && Tauler[x + i][y] != nullptr && Tauler[x + i][y]->getType() == type; i++)
+    for (int i = 1; x + i < m_width && m_celles[idx(x + i, y)] != nullptr && m_celles[idx(x + i, y)]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -95,12 +144,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova linia vertical (adalt i abaix).
     totalCount = 1;
     //Compta adalt.
-    for (int i = 1; y - i >= 0 && Tauler[x][y - i] != nullptr && Tauler[x][y - i]->getType() == type; i++)
+    for (int i = 1; y - i >= 0 && m_celles[idx(x, y - i)] != nullptr && m_celles[idx(x, y - i)]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta abaix.
-    for (int i = 1; y + i < m_height && Tauler[x][y + i] != nullptr && Tauler[x][y + i]->getType() == type; i++)
+    for (int i = 1; y + i < m_height && m_celles[idx(x, y + i)] != nullptr && m_celles[idx(x, y + i)]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -112,12 +161,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova diagonals (adalt-esquerrra i abaix-dreta) (). 
     totalCount = 1;
     //Compta adalt-esquerrra
-    for (int i = 1; x - i >= 0 && y - i >= 0 && Tauler[x - i][y - i] != nullptr && Tauler[x - i][y - i]->getType() == type; i++)
+    for (int i = 1; x - i >= 0 && y - i >= 0 && m_celles[idx(x - i, y - i)] != nullptr && m_celles[idx(x - i, y - i)]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta abaix-dreta.
-    for (int i = 1; x + i < m_width && y + i < m_height && Tauler[x + i][y + i] != nullptr && Tauler[x + i][y + i]->getType() == type; i++)
+    for (int i = 1; x + i < m_width && y + i < m_height && m_celles[idx(x + i, y + i)] != nullptr && m_celles[idx(x + i, y + i)]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -129,12 +178,12 @@ bool Board::shouldExplode(int x, int y) const
     //Comprova diagonals (adalt-dreta i esquerra-abaix) ().
     totalCount = 1;
     //Compta adalt-dreta
-    for (int i = 1; x + i < m_width && y - i >= 0 && Tauler[x + i][y - i] != nullptr && Tauler[x + i][y - i]->getType() == type; i++)
+    for (int i = 1; x + i < m_width && y - i >= 0 && m_celles[idx(x + i, y - i)] != nullptr && m_celles[idx(x + i, y - i)]->getType() == type; i++)
     {
         totalCount++;
     }
     //Compta esquerra-abaix.
-    for (int i = 1; x - i >= 0 && y + i < m_height && Tauler[x - i][y + i] != nullptr && Tauler[x - i][y + i]->getType() == type; i++)
+    for (int i = 1; x - i >= 0 && y + i < m_height && m_celles[idx(x - i, y + i)] != nullptr && m_celles[idx(x - i, y + i)]->getType() == type; i++)
     {
         totalCount++;
     }
@@ -182,10 +231,10 @@ std::vector<Candy*> Board::explodeAndDrop()
             {
                 for (int j = 0; j < m_height; j++)
                 {
-                    if (explotats[i][j] && Tauler[i][j] != nullptr)
+                    if (explotats[i][j] && m_celles[idx(i, j)] != nullptr)
                     {
-                        CandiesAExplotar.push_back(Tauler[i][j]);
-                        Tauler[i][j] = nullptr;
+                        CandiesAExplotar.push_back(m_celles[idx(i, j)]);
+                        m_celles[idx(i, j)] = nullptr;
                     }
                 }
             }
@@ -196,15 +245,15 @@ std::vector<Candy*> Board::explodeAndDrop()
             {
                 for (int j = m_height - 1; j >= 0; j--)
                 {
-                    if (Tauler[i][j] == nullptr)
+                    if (m_celles[idx(i, j)] == nullptr)
                     {
 
                         for (int k = j - 1; k >= 0; k--)
                         {
-                            if (Tauler[i][k] != nullptr)
+                            if (m_celles[idx(i, k)] != nullptr)
                             {
-                                setCell(Tauler[i][k], i, j);
-                                setCell(nullptr, i, k);
+                                m_celles[idx(i, j)] = m_celles[idx(i, k)];
+                                m_celles[idx(i, k)] = nullptr;
                                 break;
                             }
                         }
@@ -218,12 +267,66 @@ std::vector<Candy*> Board::explodeAndDrop()
     return CandiesAExplotar;
 }
 
+bool Board::operator==(const Board& altre) const
+{
+    bool diferents = false;
+    if (m_width != altre.m_width || m_height != altre.m_height)
+    {
+        return false;
+    }
+    int nCelles = m_width * m_height;
+    int i = 0;
+    while (i < nCelles && !diferents)
+    {
+        bool aquestBuit = m_celles[i] == nullptr;
+        bool altreBuit = altre.m_celles[i] == nullptr;
+        if (aquestBuit != altreBuit)
+        {
+            diferents = true;
+        }
+        else if (!aquestBuit && m_celles[i]->getType() != altre.m_celles[i]->getType())
+        {
+            diferents = true;
+        }
+        i++;
+    }
+    return !diferents;
+}
+
+Board& Board::operator=(const Board& other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+    lliberaMemoria();
+    m_width = other.m_width;
+    m_height = other.m_height;
+    creaTauler();
+    int mida = m_width * m_height;
+    for (int i = 0; i < mida; i++)
+    {
+        if (other.m_celles[i] == nullptr)
+        {
+            m_celles[i] = nullptr;
+        }
+        else
+        {
+            m_celles[i] = new Candy(other.m_celles[i]->getType());
+        }
+    }
+    return *this;
+}
 //dump: Guardem tota la informacio del tauler en un fitxer extern que ens permet guardar de forma permanent la partida en l'estat actual.
 bool Board::dump(const std::string& output_path) const
 {
     //Declarem el fitxer que utilitzarem per gurdar les dades.
     std::ofstream file(output_path);
 
+    if (!file.is_open())
+    {
+        return false;
+    }
     //Primer guardem les mesures del tauler per poder-lo recrear adequadament.
     file << m_width << " " << m_height << std::endl;
 
@@ -233,16 +336,17 @@ bool Board::dump(const std::string& output_path) const
     {
         for (int i = 0; i < m_width; i++)
         {
-            if (Tauler[j][i] == nullptr)
+            if (m_celles[idx(i, j)] == nullptr)
             {
                 file << "-1 ";
             }
             else
             {
-                file << static_cast<int>(Tauler[j][i]->getType()) << " ";
+                file << static_cast<int>(m_celles[idx(i, j)]->getType()) << " ";
             }
-            file << std::endl;
+            
         }
+        file << std::endl;
     }
     file.close();
     return true;
@@ -253,18 +357,23 @@ bool Board::dump(const std::string& output_path) const
 bool Board::load(const std::string& input_path)
 {
     std::ifstream file(input_path);
+    if (!file.is_open())
+    {
+        return false;
+    }
     //Establim les dimensions del tauler amb les donades al fitxer
     int width, height;
     file >> width >> height;
 
+    lliberaMemoria();
     m_width = width;
     m_height = height;
-    Tauler.resize(m_height, std::vector<Candy*>(m_width, nullptr));
+    creaTauler();
 
     //Per a evitar conflictes, borrem el tauler que hi pugues haver abans d'aquest
     for (int y = 0; y < m_height; y++) {
         for (int x = 0; x < m_width; x++) {
-            delete Tauler[y][x];
+            delete m_celles[idx(x, y)];
         }
     }
 
@@ -280,25 +389,25 @@ bool Board::load(const std::string& input_path)
             switch (type)
             {
             case 0:
-                Tauler[y][x] = new Candy(CandyType::TYPE_RED);
+                m_celles[idx(x, y)] = new Candy(CandyType::TYPE_RED);
                 break;
             case 1:
-                Tauler[y][x] = new Candy(CandyType::TYPE_BLUE);
+                m_celles[idx(x, y)] = new Candy(CandyType::TYPE_BLUE);
                 break;
             case 2:
-                Tauler[y][x] = new Candy(CandyType::TYPE_GREEN);
+                m_celles[idx(x, y)] = new Candy(CandyType::TYPE_GREEN);
                 break;
             case 3:
-                Tauler[y][x] = new Candy(CandyType::TYPE_YELLOW);
+                m_celles[idx(x, y)] = new Candy(CandyType::TYPE_YELLOW);
                 break;
             case 4:
-                Tauler[y][x] = new Candy(CandyType::TYPE_PURPLE);
+                m_celles[idx(x, y)] = new Candy(CandyType::TYPE_PURPLE);
                 break;
             case 5:
-                Tauler[y][x] = new Candy(CandyType::TYPE_ORANGE);
+                m_celles[idx(x, y)] = new Candy(CandyType::TYPE_ORANGE);
                 break;
             default:
-                Tauler[y][x] = nullptr;
+                m_celles[idx(x, y)] = nullptr;
                 break;
             }
         }

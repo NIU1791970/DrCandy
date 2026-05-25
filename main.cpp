@@ -13,7 +13,7 @@ int main(int argc, const char* argv[])
     {
         std::cout << "Test superados." << std::endl;
     }
-
+    
     // The following code runs the graphic part
     Game game;
     // Run until ESC is pressed

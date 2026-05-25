@@ -7,6 +7,11 @@
 #include "graphics.h"
 #include "controller.h"
 
+#include "board.h"
+#include "bloc.h"
+
+#include <vector>
+
 /**
  * Main game class: keep track of the game state it. 
  * When run_graphic_game() is called, the game loop will call
@@ -53,5 +58,19 @@ public:
 
     /// @return true if this game is equal to the other game (same board state and falling block)
     bool operator==(const Game& other) const;
+
+    bool potEsquerra() const;
+    bool potDreta() const;
+    bool potCaure() const;
+
+private:
+    int m_score;
+    Board m_board;
+    Bloc m_bloc;
+    int m_comptadorFrames;
+    bool m_gameOver;
+
+    void creaBloc();
+    void blocAlTerra();
 };
 #endif

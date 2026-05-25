@@ -26,7 +26,7 @@ class Board
 public:
     /// Initialize a board of the given dimensions.
     Board(int width = DEFAULT_BOARD_WIDTH, int height = DEFAULT_BOARD_HEIGHT);
-
+    Board(const Board& other);
     /// Free all resources managed by the board
     ~Board();
 
@@ -87,10 +87,21 @@ public:
     /// Get the board height
     int getHeight() const;
 
+    bool operator==(const Board& altre) const;
+    Board& operator=(const Board& other);
+
 private:
-    std::vector<std::vector<Candy*>> Tauler;
+    //std::vector<std::vector<Candy*>> Tauler;
     int m_width;
     int m_height;
+
+    Candy** m_celles;
+    
+    //Metodes auxiliars
+    int idx(int x, int y) const;
+    void creaTauler();
+    void lliberaMemoria();
+    bool estaDintre(int x, int y) const;
     /// Students can add as many protected methods and attributes as needed.
 };
 
