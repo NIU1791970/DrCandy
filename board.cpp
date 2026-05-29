@@ -12,7 +12,7 @@ int Board::idx(int x, int y) const
     return y * m_width + x;
 }
 //CONSTRUCTOR: Iniciem el tauler (de la classe Board) amb punters nullptr (no apunten a res), i amb les dimensions pasades com a valor de width i height.
-Board::Board(int width, int height) : m_width(width), m_height(height), m_celles(nullptr)
+Board::Board(int width, int height) : m_width(width), m_height(height), m_celles(nullptr), m_assignats(nullptr)
 {
     creaTauler();
 }
@@ -21,17 +21,19 @@ Board::Board(const Board& other)
 {
     m_width = other.m_width;
     m_height = other.m_height;
-    m_celles = other.m_celles;
+    m_assignats = nullptr;
     creaTauler();
+   
     for (int i = 0; i < m_width * m_height; i++)
     {
-        if (other.m_celles == nullptr)
+        if (other.m_celles[i] == nullptr)
         {
-            m_celles[i] == nullptr;
+            m_celles[i] = nullptr;
         }
         else
         {
-            m_celles[i] == new Candy(other.m_celles[i]->getType());
+            m_celles[i] = new Candy(other.m_celles[i]->getType());
+            m_assignats[i] = true;
         }
     }
 }
@@ -76,8 +78,13 @@ void Board::setCell(Candy* candy, int x, int y)
 {
     if (x >= 0 && x < m_width && y >= 0 && y < m_height)
     {
-        delete m_celles[idx(x, y)];
-        m_celles[idx(x, y)] = candy;
+        int i = idx(x, y);
+        if (m_assignats[i])
+        {
+            delete m_celles[i];
+            m_assignats[i] = false;
+        }
+        m_celles[i] = candy;
 
     }
 }
@@ -95,9 +102,11 @@ void Board::creaTauler()
 {
     int nCelles = m_width * m_height;
     m_celles = new Candy*[nCelles];
+    m_assignats = new bool[nCelles];
     for (int i = 0; i < nCelles; i++)
     {
         m_celles[i] = nullptr;
+        m_assignats[i] = false;
     }
 }
 void Board::lliberaMemoria()
@@ -105,10 +114,15 @@ void Board::lliberaMemoria()
     int nCelles = m_width * m_height;
     for (int i = 0; i < nCelles; i++)
     {
-        delete m_celles[i];
+        if (m_assignats[i])
+        {
+            delete m_celles[i];
+        }
     }
     delete[] m_celles;
+    delete[] m_assignats;
     m_celles = nullptr;
+    m_assignats = nullptr;
 }
 //sholudExplode: comprova si, des de les coordenades x y proporcionades, seguint qualsevol de les vuit 
 //direccions i comptant-se a si mateixa, hi ha tres o més cel·les del mateix tipus de punter candy. De ser aixi retorna true. Si no hi ha tres 
@@ -117,6 +131,10 @@ bool Board::shouldExplode(int x, int y) const
 {
     //Comprova que les coordenades estiguin dintre el tauler.
     if (x < 0 || x >= m_width || y < 0 || y >= m_height || m_celles[idx(x, y)] == nullptr)
+    {
+        return false;
+    }
+    if (m_celles[idx(x, y)] == nullptr)
     {
         return false;
     }
@@ -235,6 +253,7 @@ std::vector<Candy*> Board::explodeAndDrop()
                     {
                         CandiesAExplotar.push_back(m_celles[idx(i, j)]);
                         m_celles[idx(i, j)] = nullptr;
+                        m_assignats[idx(i, j)] = false;
                     }
                 }
             }
@@ -253,8 +272,11 @@ std::vector<Candy*> Board::explodeAndDrop()
                             if (m_celles[idx(i, k)] != nullptr)
                             {
                                 m_celles[idx(i, j)] = m_celles[idx(i, k)];
+                                m_assignats[idx(i, j)] = m_assignats[idx(i, k)];
                                 m_celles[idx(i, k)] = nullptr;
                                 break;
+
+                                //XX
                             }
                         }
                     }
@@ -313,6 +335,7 @@ Board& Board::operator=(const Board& other)
         else
         {
             m_celles[i] = new Candy(other.m_celles[i]->getType());
+            m_assignats[i] = true;
         }
     }
     return *this;
@@ -370,12 +393,14 @@ bool Board::load(const std::string& input_path)
     m_height = height;
     creaTauler();
 
+    
     //Per a evitar conflictes, borrem el tauler que hi pugues haver abans d'aquest
+    /*
     for (int y = 0; y < m_height; y++) {
         for (int x = 0; x < m_width; x++) {
             delete m_celles[idx(x, y)];
         }
-    }
+    }*/
 
     //Recorrem la matriu sencera i assignem a cada posicio el valor que se li assigna al fitxer d'input.
     //A cada linea hi ha un nombre del 0 al 5 on cada nombre representa un tipus de caramel
@@ -390,21 +415,27 @@ bool Board::load(const std::string& input_path)
             {
             case 0:
                 m_celles[idx(x, y)] = new Candy(CandyType::TYPE_RED);
+                m_assignats[idx(x, y)] = true;
                 break;
             case 1:
                 m_celles[idx(x, y)] = new Candy(CandyType::TYPE_BLUE);
+                m_assignats[idx(x, y)] = true;
                 break;
             case 2:
                 m_celles[idx(x, y)] = new Candy(CandyType::TYPE_GREEN);
+                m_assignats[idx(x, y)] = true;
                 break;
             case 3:
                 m_celles[idx(x, y)] = new Candy(CandyType::TYPE_YELLOW);
+                m_assignats[idx(x, y)] = true;
                 break;
             case 4:
                 m_celles[idx(x, y)] = new Candy(CandyType::TYPE_PURPLE);
+                m_assignats[idx(x, y)] = true;
                 break;
             case 5:
                 m_celles[idx(x, y)] = new Candy(CandyType::TYPE_ORANGE);
+                m_assignats[idx(x, y)] = true;
                 break;
             default:
                 m_celles[idx(x, y)] = nullptr;

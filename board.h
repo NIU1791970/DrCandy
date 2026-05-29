@@ -96,6 +96,7 @@ private:
     int m_height;
 
     Candy** m_celles;
+    bool* m_assignats;
     
     //Metodes auxiliars
     int idx(int x, int y) const;

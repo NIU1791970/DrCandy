@@ -18,9 +18,17 @@ Game::Game()
 
 Game::~Game()
 {
-    // Implement your code here
+    lliberaAssignats();
 }
 
+void Game::lliberaAssignats()
+{
+    for(int i = 0; i < m_candiesAssignats.size(); i++)
+    {
+        delete m_candiesAssignats[i];
+    }
+    m_candiesAssignats.clear();
+}
 
 bool Game::potEsquerra() const
 {
@@ -35,9 +43,10 @@ bool Game::potEsquerra() const
     {
         for (int i = 0; i < MIDA_BLOC; i++)
         {
-            if (fila - i >= 0 && fila - i < m_board.getHeight())
+            int filaCandy = fila - i;
+            if (filaCandy >= 0 && filaCandy < m_board.getHeight() && col - 1 < m_board.getWidth())
             {
-                if (m_board.getCell(col - 1, fila - i) != nullptr)
+                if (m_board.getCell(col - 1, filaCandy) != nullptr)
                 {
                     pot = false;
                 }
@@ -60,9 +69,10 @@ bool Game::potDreta() const
     {
         for (int i = 0; i < MIDA_BLOC; i++)
         {
-            if (fila - i >= 0 && fila - i < m_board.getHeight())
+            int filaCandy = fila - i;
+            if (filaCandy >= 0 && filaCandy < m_board.getHeight() && col + 1 < m_board.getWidth())
             {
-                if (m_board.getCell(col + 1, fila - i) != nullptr)
+                if (m_board.getCell(col + 1, filaCandy) != nullptr)
                 {
                     pot = false;
                 }
@@ -77,13 +87,25 @@ bool Game::potCaure() const
     bool pot = true;
     int col = m_bloc.getColumna();
     int fila = m_bloc.getFila();
+
     if (fila + 1 >= m_board.getHeight())
     {
         pot = false;
     }
-    if (fila >= 0 && m_board.getCell(col, fila + 1) != nullptr)
+    else
     {
-        pot = false;
+        for (int i = 0; i < MIDA_BLOC && pot; i++)
+        {
+            int filaCandy = fila - i;
+            int filaInferior = filaCandy + 1;
+            if (filaInferior >= 0 && filaInferior < m_board.getHeight() && col >= 0 && col < m_board.getWidth())
+            {
+                if (m_board.getCell(col, filaInferior) != nullptr)
+                {
+                    pot = false;
+                }
+            }
+        }
     }
     return pot;
 }
@@ -96,13 +118,14 @@ void Game::blocAlTerra()
     for(int i = 0; i < MIDA_BLOC; i++)
     {
         int filaCandy = fila - (MIDA_BLOC - 1 - i);
-        if (filaCandy >= 0 && filaCandy < m_board.getHeight())
+        if (filaCandy >= 0 && filaCandy < m_board.getHeight() && col >= 0 && col < m_board.getWidth())
         {
-            if (m_board.getCell(col, filaCandy) == nullptr)
-            {
+            //if (m_board.getCell(col, filaCandy) == nullptr)
+            //{
                 Candy* c = new Candy(m_bloc.getCandyType(i));
+                m_candiesAssignats.push_back(c);
                 m_board.setCell(c, col, filaCandy);
-            }
+            //}
             
         }
     }
@@ -111,6 +134,20 @@ void Game::blocAlTerra()
     m_score += exploded.size();
     for (int i = 0; i < exploded.size(); i++)
     {
+        int index = 0;
+        bool trobat = false;
+        for (int j = 0; j < m_candiesAssignats.size(); j++)
+        {
+            if (m_candiesAssignats[i] == exploded[i])
+            {
+                trobat = true;
+                index = j;
+            }
+        }
+        if(trobat)
+        {
+            m_candiesAssignats.erase(m_candiesAssignats.begin() + index);
+        }
         delete exploded[i];
     }
 
@@ -134,17 +171,17 @@ void Game::update(const Controller& controller)
     }
     if (controller.isLeftPressed() && potEsquerra())
     {
-        cout << "ESQUERRA\n";
+        //cout << "ESQUERRA\n";
         m_bloc.esquerra();
     }
     if (controller.isRightPressed() && potDreta())
     {
         m_bloc.dreta();
-        cout << "DRETA\n";
+        //cout << "DRETA\n";
     }
     if (controller.isKey1Pressed())
     {
-        cout << "CICLE\n";
+        //cout << "CICLE\n";
         m_bloc.cicle();
     }
     if (controller.isKey2Pressed())
@@ -290,12 +327,12 @@ bool Game::dump(const string& output_path) const
     fitxer << m_board.getWidth() << " " << m_board.getHeight() << endl;
     for (int y = 0; y < m_board.getHeight(); y++)
     {
-        cout << "A" << y << endl;
+        //cout << "A" << y << endl;
         for (int x = 0; x < m_board.getWidth(); x++)
         {
-            cout << "B" << x << endl;
+            //cout << "B" << x << endl;
             Candy* c = m_board.getCell(x, y);
-            cout << "C" << endl;
+            //cout << "C" << endl;
             if (c == nullptr)
             {
                 fitxer << -1 << " ";
@@ -345,8 +382,9 @@ bool Game::load(const string& input_path)
 
     int width, height;
     fitxer >> width >> height;
-
-    m_board = Board(width, height);
+    lliberaAssignats();
+    Board testTauler(width, height);
+    m_board = testTauler;
     
     for (int y = 0; y < height; y++)
     {
@@ -357,6 +395,7 @@ bool Game::load(const string& input_path)
             if (tipus >= 0 && tipus < static_cast<int>(CandyType::COUNT))
             {
                 Candy* c = new Candy(static_cast<CandyType>(tipus));
+                m_candiesAssignats.push_back(c);
                 m_board.setCell(c, x, y);
             }
         }

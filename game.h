@@ -58,6 +58,7 @@ public:
 
     /// @return true if this game is equal to the other game (same board state and falling block)
     bool operator==(const Game& other) const;
+    
 
     bool potEsquerra() const;
     bool potDreta() const;
@@ -70,6 +71,8 @@ private:
     int m_comptadorFrames;
     bool m_gameOver;
 
+    void lliberaAssignats();
+    std::vector<Candy*> m_candiesAssignats;
     void creaBloc();
     void blocAlTerra();
 };

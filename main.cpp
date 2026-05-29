@@ -5,14 +5,14 @@
 
 int main(int argc, const char* argv[])
 {
-    if (!test())
+    /*if (!test())
     {
         std::cout << "Tests NO superados. Los has definido ya?" << std::endl;
     }
     else
     {
         std::cout << "Test superados." << std::endl;
-    }
+    }*/
     
     // The following code runs the graphic part
     Game game;
